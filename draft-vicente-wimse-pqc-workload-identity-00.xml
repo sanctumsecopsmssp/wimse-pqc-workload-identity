@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rfc [
+  <!ENTITY nbsp "&#160;">
+]>
+<rfc xmlns:xi="http://www.w3.org/2001/XInclude"
+     category="info"
+     docName="draft-vicente-wimse-pqc-workload-identity-00"
+     ipr="trust200902"
+     submissionType="independent"
+     xml:lang="en"
+     version="3">
+
+  <front>
+    <title abbrev="WIMSE PQC Workload Identity">Post-Quantum Cryptographic Agility for WIMSE Workload Identity</title>
+
+    <seriesInfo name="Internet-Draft" value="draft-vicente-wimse-pqc-workload-identity-00"/>
+
+    <author initials="B." surname="Vicente" fullname="Brian Vicente">
+      <organization>Sanctum SecOps LLC</organization>
+      <address>
+        <postal>
+          <city>Pine City</city>
+          <region>NY</region>
+          <country>United States of America</country>
+        </postal>
+        <email>bvicente@sanctumsecops.com</email>
+        <uri>https://orcid.org/0009-0006-6395-5308</uri>
+      </address>
+    </author>
+
+    <date year="2026" month="June" day="8"/>
+
+    <area>Security</area>
+    <workgroup>Workload Identity in Multi System Environments</workgroup>
+
+    <keyword>post-quantum cryptography</keyword>
+    <keyword>PQC</keyword>
+    <keyword>Sanctum SecOps</keyword>
+    <keyword>wimse</keyword>
+
+    <abstract>
+      <t>This document extends WIMSE Workload Credentials and Workload Authentication Using Mutual TLS with post-quantum cryptographic (PQC) algorithm identifiers, hybrid certificate chains, and a pqc_epoch_id claim. The extensions enable service-mesh deployments to enforce PQC rotation epochs across workload-to-workload authentication.</t>
+      <t>The extensions are designed for service meshes and multi-tenant workload identity authorities. Concrete tenant isolation parameters are deployment-specific and are not disclosed in this Internet-Draft.</t>
+    </abstract>
+
+    <note title="Source and Archival" removeInRFC="true">
+      <t>
+        Source for this draft is maintained at
+        <eref target="https://github.com/Sanc-Admin/wimse-pqc-workload-identity">https://github.com/Sanc-Admin/wimse-pqc-workload-identity</eref>.
+        A citable archival version of this document is published at Zenodo
+        upon each tagged release.
+        Author ORCID iD:
+        <eref target="https://orcid.org/0009-0006-6395-5308">https://orcid.org/0009-0006-6395-5308</eref>.
+        Author professional credentials:
+        <eref target="https://www.credly.com/users/brian-vicente">https://www.credly.com/users/brian-vicente</eref>.
+      </t>
+      <t>
+        Discussion of this document occurs on the IETF "wimse" mailing list
+        (wimse@ietf.org). Issues and pull requests may be filed at the GitHub
+        repository linked above.
+      </t>
+    </note>
+
+    <note title="IPR Considerations" removeInRFC="true">
+      <t>
+        The author has filed United States patent applications covering
+        subject matter relevant to this document, including
+        U.S. Provisional Patent Application No. 64/080,137
+        (filed 2026-06-01) and U.S. Patent Application No. 19/698,870
+        (filed 2026-06-05). By posting this Internet-Draft, the author
+        submits to the IETF Trust the rights described in Section 5 of
+        BCP 78 and BCP 79. Patent licensing terms are not yet known.
+        Implementers and reviewers should consult the IETF Datatracker
+        IPR disclosure page for this document for current disclosure
+        status. The Sanctum SecOps Private Enterprise Number (PEN) root
+        used for any OID allocations referenced in companion documents is
+        1.3.6.1.4.1.65953.
+      </t>
+      <t>
+        Patent-Pending Claim Scope: The scope of the pending patent
+        applications referenced above includes, but is not limited to,
+        the orchestration, observability, and tenant-isolation mechanisms
+        described in this document insofar as they intersect the claims
+        of the referenced applications. This Internet-Draft itself does
+        not grant any patent license. Specific implementation parameters
+        that would extend beyond the disclosed interface (including but
+        not limited to scoring weights, rotation triggers, tenant
+        carve-out parameters, and adequacy thresholds) are intentionally
+        out of scope and are not disclosed in this Internet-Draft.
+      </t>
+    </note>
+
+  </front>
+
+  <middle>
+    <section anchor="introduction">
+      <name>Introduction</name>
+      <t>Workload identity in service meshes uses short-lived credentials and frequent rotation. Migrating those credentials to PQC requires explicit algorithm and epoch metadata so that authentication policy can be enforced uniformly across the mesh.</t>
+    </section>
+    <section anchor="terminology">
+      <name>Terminology</name>
+      <t>The key words "MUST", "MUST NOT", "SHOULD", "MAY" in this document are to be interpreted as described in BCP 14 [RFC2119] [RFC8174] when, and only when, they appear in all capitals, as shown here.</t>
+    </section>
+    <section anchor="credential-extensions">
+      <name>Credential Extensions</name>
+      <t>WIMSE workload credentials compliant with this document MUST include a pqc_algorithm claim and a pqc_epoch_id claim. When the credential carries a hybrid chain, the hybrid_pair claim MUST also be present.</t>
+    </section>
+    <section anchor="authentication-processing">
+      <name>Authentication Processing</name>
+      <t>Authenticators MUST verify pqc_epoch_id against the configured minimum epoch and MUST reject credentials that carry classical-only algorithms in PQC-required postures.</t>
+    </section>
+    <section anchor="tenant-considerations">
+      <name>Tenant Considerations</name>
+      <t>Workload identity authorities operating in multi-tenant environments MUST scope pqc_epoch_id values per tenant. Concrete tenant carve-out implementation parameters are deployment-specific and are not disclosed in this Internet-Draft.</t>
+    </section>
+    <section anchor="security-considerations">
+      <name>Security Considerations</name>
+      <t>The extensions do not transport private-key material. Authorities SHOULD rotate workload credentials at intervals consistent with their PQC rotation epoch.</t>
+    </section>
+    <section anchor="iana-considerations">
+      <name>IANA Considerations</name>
+      <t>IANA is requested to register pqc_algorithm, pqc_epoch_id, and hybrid_pair claim names in the WIMSE claim registry.</t>
+    </section>
+
+  </middle>
+
+  <back>
+    <references>
+      <name>Informative References</name>
+      <reference anchor="RFC2119" target="https://www.rfc-editor.org/info/rfc2119">
+        <front>
+          <title>Key words for use in RFCs to Indicate Requirement Levels</title>
+          <author initials="S." surname="Bradner" fullname="S. Bradner"/>
+          <date year="1997" month="March"/>
+        </front>
+      </reference>
+      <reference anchor="RFC8174" target="https://www.rfc-editor.org/info/rfc8174">
+        <front>
+          <title>Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words</title>
+          <author initials="B." surname="Leiba" fullname="B. Leiba"/>
+          <date year="2017" month="May"/>
+        </front>
+      </reference>
+    </references>
+  </back>
+</rfc>
