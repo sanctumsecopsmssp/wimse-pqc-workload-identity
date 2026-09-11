@@ -68,9 +68,7 @@
       <name>References</name>
       <references>
         <name>Normative References</name>
-        <reference anchor="RFC2119" target="https://www.rfc-editor.org/info/rfc2119"><front><title>Key words for use in RFCs to Indicate Requirement Levels</title><author initials="S." surname="Bradner"/><date year="1997" month="March"/></front></reference>
-        <reference anchor="RFC8174" target="https://www.rfc-editor.org/info/rfc8174"><front><title>Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words</title><author initials="B." surname="Leiba"/><date year="2017" month="May"/></front></reference>
-        <reference anchor="FIPS204" target="https://doi.org/10.6028/NIST.FIPS.204"><front><title>Module-Lattice-Based Digital Signature Standard (ML-DSA)</title><author><organization>NIST</organization></author><date year="2024" month="August"/></front></reference>
+        <xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.2119.xml"/><xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.8174.xml"/><reference anchor="FIPS204" target="https://doi.org/10.6028/NIST.FIPS.204"><front><title>Module-Lattice-Based Digital Signature Standard (ML-DSA)</title><author><organization>NIST</organization></author><date year="2024" month="August"/></front></reference>
         <reference anchor="FIPS205" target="https://doi.org/10.6028/NIST.FIPS.205"><front><title>Stateless Hash-Based Digital Signature Standard (SLH-DSA)</title><author><organization>NIST</organization></author><date year="2024" month="August"/></front></reference>
       </references>
     </references>
