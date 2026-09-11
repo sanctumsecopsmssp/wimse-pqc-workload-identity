@@ -1,0 +1,224 @@
+
+
+
+
+Workload Identity in Multi System Environments                B. Vicente
+Internet-Draft                                        Sanctum SecOps LLC
+Intended status: Informational                            12 August 2026
+Expires: 13 February 2027
+
+
+                PQC Agility for WIMSE Workload Identity
+              draft-vicente-wimse-pqc-workload-identity-03
+
+Abstract
+
+   This document defines PQC algorithm agility requirements and
+   migration mechanisms for the WIMSE (Workload Identity in Multi System
+   Environments) framework.  It specifies how workload identity tokens,
+   SVID certificates, and trust bundles transition from classical to ML-
+   DSA and hybrid composite algorithms, with epoch-aware rotation
+   coordinated by the Sanctum rotation orchestration framework.
+
+   This revision (-03) adds normative requirements for hybrid SVID
+   certificates, epoch-signaling in SPIFFE trust bundles, and alignment
+   with draft-vicente-pquip-pqc-rotation-orchestration.
+
+Source and Archival
+
+   This note is to be removed before publishing as an RFC.
+
+   Source: https://github.com/Sanc-Admin/wimse-pqc-workload-identity.
+   ORCID: https://orcid.org/0009-0006-6395-5308.  Discussion:
+   wimse@ietf.org.
+
+IPR Considerations
+
+   This note is to be removed before publishing as an RFC.
+
+   U.S.  Provisional Patent Application No. 64/080,137 (2026-06-01) and
+   U.S.  Patent Application No. 19/698,870 (2026-06-05).  Sanctum SecOps
+   PEN root: 1.3.6.1.4.1.65953.
+
+Status of This Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
+
+
+
+
+Vicente                 Expires 13 February 2027                [Page 1]
+
+Internet-Draft         WIMSE PQC Workload Identity           August 2026
+
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on 13 February 2027.
+
+Copyright Notice
+
+   Copyright (c) 2026 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents (https://trustee.ietf.org/
+   license-info) in effect on the date of publication of this document.
+   Please review these documents carefully, as they describe your rights
+   and restrictions with respect to this document.  Code Components
+   extracted from this document must include Revised BSD License text as
+   described in Section 4.e of the Trust Legal Provisions and are
+   provided without warranty as described in the Revised BSD License.
+
+Table of Contents
+
+   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
+   2.  Terminology . . . . . . . . . . . . . . . . . . . . . . . . .   3
+   3.  PQC-SVID Requirements . . . . . . . . . . . . . . . . . . . .   3
+   4.  Trust Bundle Epoch Signaling  . . . . . . . . . . . . . . . .   3
+   5.  Integration with Rotation Orchestration . . . . . . . . . . .   3
+   6.  Security Considerations . . . . . . . . . . . . . . . . . . .   4
+   7.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   4
+   8.  References  . . . . . . . . . . . . . . . . . . . . . . . . .   4
+     8.1.  Normative References  . . . . . . . . . . . . . . . . . .   4
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   4
+
+1.  Introduction
+
+   Workload identity systems (SPIFFE, SPIRE, and WIMSE-compliant
+   implementations) issue short-lived X.509 SVIDs and JWT-SVIDs to
+   authenticate workloads in cloud-native environments.  As these
+   environments migrate to PQC, every issued credential must carry a PQC
+   or hybrid composite signature, and trust bundles must reflect current
+   PQC signing key epochs.  This document defines the algorithm agility
+   profile and orchestration requirements for PQC migration in WIMSE
+   deployments.
+
+
+
+
+
+
+
+Vicente                 Expires 13 February 2027                [Page 2]
+
+Internet-Draft         WIMSE PQC Workload Identity           August 2026
+
+
+2.  Terminology
+
+   BCP 14 [RFC2119] [RFC8174] applies.
+
+   SVID:
+      SPIFFE Verifiable Identity Document.  An X.509 certificate or JWT
+      carrying a SPIFFE ID as a Subject Alternative Name.
+
+   Trust Bundle:
+      The set of CA certificates and signing keys trusted by a SPIFFE
+      trust domain.
+
+   PQC-SVID:
+      An SVID signed with an ML-DSA or hybrid composite key as defined
+      in this document.
+
+3.  PQC-SVID Requirements
+
+   WIMSE deployments conformant with this profile MUST issue X.509 SVIDs
+   signed with ML-DSA-65 or ML-DSA-87.  Hybrid composite SVIDs (ML-DSA +
+   ECDSA P-256) SHOULD be issued during the transition period for
+   backward compatibility with relying parties that cannot yet validate
+   ML-DSA signatures.  The PQCHC extension (draft-vicente-lamps-pqchc)
+   MUST be included in PQC-SVIDs to bind the ML-DSA and classical key
+   components.
+
+   JWT-SVIDs in PQC-capable WIMSE deployments MUST use the ML-DSA
+   algorithm identifier in the JOSE header.  The epoch_id MUST be
+   included as a private claim (pqc_epoch_id) in the JWT payload.
+
+4.  Trust Bundle Epoch Signaling
+
+   SPIFFE trust bundles extended for PQC deployments MUST include an
+   epoch_id field at the trust domain level.  The trust bundle refresh
+   endpoint MUST return the current epoch_id and MUST include both the
+   current and previous epoch's signing certificates during the grace
+   period following epoch rotation.  Trust bundle consumers MUST reject
+   bundles where the included epoch_id is lower than the highest
+   previously accepted epoch_id for that trust domain.
+
+5.  Integration with Rotation Orchestration
+
+   WIMSE Signing Authorities participating in orchestrated PQC rotation
+   (draft-vicente-pquip-pqc-rotation-orchestration) MUST register as
+   protocol stacks with the Rotation Orchestrator.  The Signing
+   Authority MUST emit an epoch readiness signal when its trust bundle
+   has been updated with the new epoch's certificate and all in-flight
+   SVID issuance operations have completed.  SVID issuance MUST be
+
+
+
+Vicente                 Expires 13 February 2027                [Page 3]
+
+Internet-Draft         WIMSE PQC Workload Identity           August 2026
+
+
+   paused during the COMMIT state of the orchestration state machine.
+
+6.  Security Considerations
+
+   PQC-SVIDs provide HNDL resistance for workload-to-workload
+   authentication.  The epoch_id claim in JWT-SVIDs prevents replay of
+   credentials issued under a compromised prior epoch.  Trust bundle
+   consumers MUST implement the epoch monotonicity check to prevent
+   epoch-rollback attacks.  WIMSE Signing Authorities MUST use HSM-
+   backed ML-DSA signing keys where deployment environment permits.
+
+7.  IANA Considerations
+
+   IANA is requested to register the pqc_epoch_id JWT claim name in the
+   IANA JSON Web Token Claims registry.
+
+8.  References
+
+8.1.  Normative References
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", March 1997,
+              <https://www.rfc-editor.org/info/rfc2119>.
+
+   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
+              2119 Key Words", May 2017,
+              <https://www.rfc-editor.org/info/rfc8174>.
+
+   [FIPS204]  NIST, "Module-Lattice-Based Digital Signature Standard
+              (ML-DSA)", August 2024,
+              <https://doi.org/10.6028/NIST.FIPS.204>.
+
+   [FIPS205]  NIST, "Stateless Hash-Based Digital Signature Standard
+              (SLH-DSA)", August 2024,
+              <https://doi.org/10.6028/NIST.FIPS.205>.
+
+Author's Address
+
+   Brian Vicente
+   Sanctum SecOps LLC
+   Pine City, NY
+   United States of America
+   Email: bvicente@sanctumsecops.com
+   URI:   https://orcid.org/0009-0006-6395-5308
+
+
+
+
+
+
+
+Vicente                 Expires 13 February 2027                [Page 4]

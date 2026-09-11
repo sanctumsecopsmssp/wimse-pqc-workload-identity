@@ -1,14 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE rfc [
-  <!ENTITY nbsp "&#160;">
+<!ENTITY nbsp "&#160;">
 ]>
-<rfc xmlns:xi="http://www.w3.org/2001/XInclude"
-     category="info"
-     docName="draft-vicente-wimse-pqc-workload-identity-03"
-     ipr="trust200902"
-     submissionType="independent"
-     xml:lang="en"
-     version="3">
+<rfc xmlns:xi="http://www.w3.org/2001/XInclude" category="info" docName="draft-vicente-wimse-pqc-workload-identity-03" ipr="trust200902" submissionType="IETF" xml:lang="en" version="3">
   <front>
     <title abbrev="WIMSE PQC Workload Identity">PQC Agility for WIMSE Workload Identity</title>
     <seriesInfo name="Internet-Draft" value="draft-vicente-wimse-pqc-workload-identity-03"/>
